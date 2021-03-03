@@ -7,10 +7,14 @@
 
 import UIKit
 
-class BmiCalcViewController: UIViewController {
+class BmiCalcViewController: UITableViewController {
     
     private var weight: Float = 60
     private var height: Int = 180
+    
+    private var bmiTitlesData = ["Severly underweight", "Underweight", "Normal", "OverWeight", "Obese class I", "Obese class II", "Obese class III"]
+    
+    @IBOutlet weak var bmiTable: UITableView!
     
     @IBOutlet weak var weightField: UITextField!
     @IBOutlet weak var heightField: UITextField!
@@ -62,5 +66,23 @@ class BmiCalcViewController: UIViewController {
         bmiLbl.text = "Your BMI is " + String(format: "%.1f", Double(weight) / pow(Double(height)/100, 2))
         
         bmiLbl.isHidden = false
+        
+        bmiTable.isHidden = false
+    }
+    
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        1
+    }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        bmiTitlesData.count
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "bmiCell", for: <#T##IndexPath#>)
+        
+        cell.textLabel?.text = bmiTitlesData[indexPath.row]
+        
+        return cell
     }
 }
