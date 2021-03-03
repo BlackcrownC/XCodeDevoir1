@@ -7,12 +7,13 @@
 
 import UIKit
 
-class BmiCalcViewController: UITableViewController {
+class BmiCalcViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     private var weight: Float = 60
     private var height: Int = 180
     
     private var bmiTitlesData = ["Severly underweight", "Underweight", "Normal", "OverWeight", "Obese class I", "Obese class II", "Obese class III"]
+    private var bmiNbData = ["< 16", "16 - 18.5", "18.5 - 25", "25 - 30", "30 - 35", "35 - 40", "> 40"]
     
     @IBOutlet weak var bmiTable: UITableView!
     
@@ -28,7 +29,12 @@ class BmiCalcViewController: UITableViewController {
         
         updateWeight()
         updateHeight()
+        
+        bmiTable.dataSource = self
+        bmiTable.delegate = self
     }
+    
+    // Sliders and TextFields Weight and Height manipulation
 
     private func updateWeight() {
         weightSlider.value = weight
@@ -61,27 +67,58 @@ class BmiCalcViewController: UITableViewController {
         updateHeight()
     }
     
+    private var lastI = 0
+    
     @IBAction func CheckBMI(_ sender: Any) {
+        bmiTable.cellForRow(at: IndexPath(row: lastI, section: 0))?.textLabel!.backgroundColor = UIColor.clear
         
-        bmiLbl.text = "Your BMI is " + String(format: "%.1f", Double(weight) / pow(Double(height)/100, 2))
+        let bmi = Double(weight) / pow(Double(height)/100, 2)
+        let i: Int
+        
+        bmiLbl.text = "Your BMI is " + String(format: "%.1f", bmi)
         
         bmiLbl.isHidden = false
         
         bmiTable.isHidden = false
+        
+        switch bmi {
+        case _ where bmi < 16:
+            i = 0
+        case 16..<18.5:
+            i = 1
+        case 18.5..<25:
+            i = 2
+        case 25..<30:
+            i = 3
+        case 30..<35:
+            i = 4
+        case 35..<40:
+            i = 5
+        case _ where bmi > 40:
+            i = 6
+        default:
+            i = 0
+        }
+        
+        bmiTable.cellForRow(at: IndexPath(row: i, section: 0))?.textLabel!.backgroundColor = UIColor.yellow
+        lastI = i
     }
     
-    override func numberOfSections(in tableView: UITableView) -> Int {
+    // TableView
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
         1
     }
     
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         bmiTitlesData.count
     }
     
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "bmiCell", for: <#T##IndexPath#>)
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "bmiCell", for: indexPath)
         
         cell.textLabel?.text = bmiTitlesData[indexPath.row]
+        cell.detailTextLabel?.text = bmiNbData[indexPath.row]
         
         return cell
     }
